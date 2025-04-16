@@ -2,16 +2,35 @@ Config = {}
 
 Config.Debug = false  -- Set to true to enable debug prints
 
-Config.BaitItems = { -- You can make certain bait be more effective than others. 
-    ["grizzly_bait"] = { -- item in your db
-      prop = "s_grizzlybait01x",
-        animals = {"a_c_bear_01", "a_c_buffalo_01"}, -- I don't suggest wolves, they behave weirdly.
-        waitBeforeSpawn = 15000,  -- Time in milliseconds to wait before the animal spawns
-        noAnimalChance = 0.25,   -- Chance that no animal will spawn (0.25 means 25%)
-        placeProp = true,        -- Options: true = creates object | false = does not create object
-        useInspectAnim = true,   -- Options: true = uses inspect animation | false = uses "WORLD_PLAYER_PLACE_BAIT_NORMAL" scenario.
+Config.BaitItems = { 
+    -- You can make certain bait be more effective than others.
+    -- This bait item must match the name of your usable item from the database
+    ["grizzly_bait"] = {
+        prop = "s_grizzlybait01x", -- The object that gets placed on the ground when bait is used
+
+        animals = {
+            -- 🐻 Legendary Owiza Bear (specific preset outfit)
+            {
+                model = "mp_a_c_bear_01", -- Model name of the animal
+                legendary = {
+                    outfit = 1 -- Outfit preset ID for Legendary Bear (from https://pastebin.com/6Vc26NLL)
+                }
+            },
+            -- 🐻 Grizzly Bear with random outfit (no preset)
+            {
+                model = "a_c_bear_01",
+                legendary = {
+                    random = true -- No preset 
+                }
+            }
+        },
+        waitBeforeSpawn = 15000,   -- Time (ms) before animal spawns after bait is placed
+        noAnimalChance  = 0.25,    -- 25% chance that no animal spawns at all
+        placeProp       = true,    -- true = place prop on ground, false = invisible bait
+        useInspectAnim  = true     -- true = use inspect animation, false = use bait placing scenario
     },
-    -- Add more bait items here
+
+    -- 📝 Add more bait types using this structure
 }
 
 Config.BlacklistZones = {
