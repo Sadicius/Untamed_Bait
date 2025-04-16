@@ -57,7 +57,7 @@ AddEventHandler('untamed_bait:spawnAnimal', function(itemName, baitCoords)
     local animals = Config.BaitItems[itemName].animals
     local animal = animals[math.random(#animals)]
     if Config.Debug then print('Broadcasting animal spawn from server') end
-    TriggerClientEvent('untamed_bait:spawnAnimalClient', -1, animal, baitCoords, src)
+    TriggerClientEvent('untamed_bait:spawnAnimalClient', src, animal, baitCoords, src) -- Credit to encephalitis for fix/oversight.
 end)
 
 -- Return bear trap to the player if the trap was deactivated
