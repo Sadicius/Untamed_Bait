@@ -658,7 +658,7 @@ end)
 
 RegisterNetEvent('untamed_bait:spawnAnimalClient')
 AddEventHandler('untamed_bait:spawnAnimalClient', function(animal, baitCoords, playerSource)
-    if spawnedAnimal then return end -- Already an animal spawned, prevent duplicate
+    if spawnedAnimal then return end -- Already an animal spawned
 
     -- Clear timeout if no animal previously spawned
     if noAnimalTimeout then
@@ -678,9 +678,12 @@ AddEventHandler('untamed_bait:spawnAnimalClient', function(animal, baitCoords, p
 
     if Config.Debug then print("Spawning animal at coords:", spawnCoords) end
 
+    -- 🔧 Make sure 'animal' is a string (model name) if it came from table
+    local model = type(animal) == "table" and animal.model or animal
+
     -- Load the model before spawning
-    RequestModel(animal)
-    while not HasModelLoaded(animal) do
+    RequestModel(model)
+    while not HasModelLoaded(model) do
         Citizen.Wait(0)
     end
 
@@ -691,29 +694,27 @@ AddEventHandler('untamed_bait:spawnAnimalClient', function(animal, baitCoords, p
     end
 
     -- Spawn the ped (animal)
-    spawnedAnimal = CreatePed(animal, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0.0, true, false, true, true)
+    spawnedAnimal = CreatePed(model, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0.0, true, false, true, true)
 
-    -- ===================== 🧠 Outfit Handling =====================
+    -- ===================== 🧥 Outfit Handling =====================
+    -- Always apply random outfit variant first (required for animals to show properly)
+    Citizen.InvokeNative(0x283978A15512B2FE, spawnedAnimal, true)
 
+    -- Optional: Apply preset legendary outfit (only if defined in config)
     local presetOutfit = nil
-
     for _, bait in pairs(Config.BaitItems) do
         for _, data in ipairs(bait.animals or {}) do
-            if type(data) == "table" and data.model:lower() == animal:lower() and data.legendary then
+            if type(data) == "table" and data.model:lower() == model:lower() and data.legendary then
                 if data.legendary.outfit then
-                    presetOutfit = data.legendary.outfit -- outfit preset hash
+                    presetOutfit = data.legendary.outfit
                 end
                 break
             end
         end
     end
 
-    -- First apply base variation
-    Citizen.InvokeNative(0x283978A15512B2FE, spawnedAnimal, true) -- SetRandomOutfitVariation (always do this first)
-
-    -- Then override with preset if defined
     if presetOutfit then
-        Citizen.InvokeNative(0x77FF8D35EEC6BBC4, spawnedAnimal, presetOutfit) -- EquipMetaPedOutfitPreset
+        Citizen.InvokeNative(0x77FF8D35EEC6BBC4, spawnedAnimal, presetOutfit)
     end
     -- ===================== ✅ End Outfit Handling =====================
 
